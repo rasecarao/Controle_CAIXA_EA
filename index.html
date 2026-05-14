@@ -1,1 +1,1102 @@
 
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Caixa Dinheiro — Explosão Alimentos</title>
+<meta name="description" content="Controle de caixa em dinheiro — Explosão Alimentos">
+<meta property="og:type"    content="website">
+<meta property="og:title"   content="Caixa Dinheiro — Explosão Alimentos">
+<meta property="og:locale"  content="pt_BR">
+<link rel="icon" type="image/png" href="https://explosaoalimentos.com.br/wp-content/uploads/2024/11/logo-menor-e1731554322568.png">
+
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg:        #f7f6f3;
+    --card:      #ffffff;
+    --border:    #e2e0da;
+    --green:     #1a5c38;
+    --green-lt:  #e8f4ed;
+    --green-md:  #2e7d52;
+    --txt-h:     #1a1a18;
+    --txt-m:     #6b6960;
+    --txt-s:     #9b9890;
+    --blue-lt:   #eaf1fb;
+    --purple-lt: #f0eafa;
+    --orange-lt: #fff3e6;
+    --red-lt:    #fdecea;
+    --shadow:    rgba(26,92,56,.12);
+    --radius:    14px;
+  }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background: var(--bg);
+    min-height: 100vh;
+    color: var(--txt-h);
+  }
+
+  /* ── HEADER ── */
+  .header {
+    background: var(--card);
+    border-bottom: 1px solid var(--border);
+    padding: 16px 24px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    box-shadow: 0 1px 8px rgba(0,0,0,.06);
+  }
+  .header img { height: 46px; width: auto; }
+  .header-info { flex: 1; }
+  .header-title { font-size: 17px; font-weight: 700; color: var(--txt-h); }
+  .header-sub   { font-size: 12px; color: var(--txt-m); margin-top: 1px; }
+
+  .header-date {
+    font-size: 12px; color: var(--txt-m);
+    background: var(--bg); border: 1px solid var(--border);
+    border-radius: 8px; padding: 6px 12px;
+    display: flex; align-items: center; gap: 6px;
+  }
+
+  /* ── MAIN ── */
+  .main { max-width: 1100px; margin: 0 auto; padding: 24px 20px 60px; }
+
+  /* ── KPIs ── */
+  .kpis {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 14px;
+    margin-bottom: 28px;
+  }
+  .kpi {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 20px;
+    transition: box-shadow .18s;
+  }
+  .kpi:hover { box-shadow: 0 4px 20px var(--shadow); }
+  .kpi-icon {
+    width: 38px; height: 38px; border-radius: 9px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 20px; margin-bottom: 12px;
+  }
+  .kpi-icon.green  { background: var(--green-lt); }
+  .kpi-icon.blue   { background: var(--blue-lt);  }
+  .kpi-icon.red    { background: var(--red-lt);   }
+  .kpi-icon.orange { background: var(--orange-lt);}
+  .kpi-icon.purple { background: var(--purple-lt);} 
+  .kpi-label { font-size: 11px; font-weight: 600; color: var(--txt-m); text-transform: uppercase; letter-spacing: .6px; }
+  .kpi-val   { font-size: 26px; font-weight: 700; color: var(--txt-h); margin-top: 4px; line-height: 1; }
+  .kpi-val.red  { color: #c0392b; }
+  .kpi-val.green{ color: var(--green); }
+  .kpi-sub   { font-size: 11px; color: var(--txt-s); margin-top: 4px; }
+
+  /* ── DATE FILTER BAR ── */
+  .filter-bar {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 14px 20px;
+    display: flex; align-items: center; gap: 14px;
+    margin-bottom: 20px; flex-wrap: wrap;
+  }
+  .filter-bar label { font-size: 12px; font-weight: 600; color: var(--txt-m); }
+  .filter-bar input[type=date] {
+    border: 1px solid var(--border); border-radius: 8px;
+    padding: 6px 10px; font-size: 13px; color: var(--txt-h);
+    background: var(--bg); outline: none;
+  }
+  .filter-bar input[type=date]:focus { border-color: var(--green); }
+  .btn-sm {
+    padding: 6px 14px; border-radius: 8px; font-size: 12px; font-weight: 600;
+    cursor: pointer; border: none; transition: all .15s;
+  }
+  .btn-outline {
+    background: transparent; border: 1px solid var(--border); color: var(--txt-m);
+  }
+  .btn-outline:hover { border-color: var(--green); color: var(--green); }
+  .spacer { flex: 1; }
+
+  /* ── TABS ── */
+  .tabs { display: flex; gap: 4px; margin-bottom: 20px; }
+  .tab {
+    padding: 9px 20px; border-radius: 9px; font-size: 13px; font-weight: 600;
+    cursor: pointer; border: 1px solid transparent; transition: all .16s;
+    color: var(--txt-m); background: transparent; display: flex; align-items: center; gap: 7px;
+  }
+  .tab:hover { background: var(--card); border-color: var(--border); }
+  .tab.active {
+    background: var(--card); border-color: var(--green);
+    color: var(--green); box-shadow: 0 2px 12px var(--shadow);
+  }
+
+  /* ── PANEL ── */
+  .panel { display: none; }
+  .panel.active { display: block; }
+
+  /* ── FORM CARD ── */
+  .form-card {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 24px; margin-bottom: 20px;
+  }
+  .form-card h3 {
+    font-size: 14px; font-weight: 700; color: var(--green);
+    margin-bottom: 18px; display: flex; align-items: center; gap: 8px;
+  }
+  .form-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 14px;
+  }
+  .field { display: flex; flex-direction: column; gap: 5px; }
+  .field.wide { grid-column: span 2; }
+  .field label { font-size: 11px; font-weight: 600; color: var(--txt-m); text-transform: uppercase; letter-spacing: .5px; }
+  .field input, .field select, .field textarea {
+    border: 1px solid var(--border); border-radius: 8px;
+    padding: 9px 12px; font-size: 13px; color: var(--txt-h);
+    background: var(--bg); outline: none; transition: border-color .15s;
+    font-family: inherit;
+  }
+  .field input:focus, .field select:focus, .field textarea:focus { border-color: var(--green); background: #fff; }
+  .field textarea { resize: vertical; min-height: 60px; }
+  .form-footer { margin-top: 18px; display: flex; gap: 10px; align-items: center; }
+  .btn-primary {
+    background: var(--green); color: #fff; border: none;
+    padding: 10px 24px; border-radius: 9px; font-size: 13px; font-weight: 700;
+    cursor: pointer; transition: background .15s; display: flex; align-items: center; gap: 8px;
+  }
+  .btn-primary:hover { background: var(--green-md); }
+  .btn-primary:disabled { opacity: .5; cursor: not-allowed; }
+  .form-msg { font-size: 12px; }
+  .form-msg.ok  { color: var(--green); }
+  .form-msg.err { color: #c0392b; }
+
+  /* Checkbox notinha */
+  .check-row { display: flex; align-items: center; gap: 8px; margin-top: 2px; }
+  .check-row input[type=checkbox] {
+    width: 16px; height: 16px; accent-color: var(--green); cursor: pointer;
+    border: none; padding: 0;
+  }
+  .check-row span { font-size: 13px; color: var(--txt-h); }
+
+  /* Pagamento misto */
+  .payment-split {
+    display: none;
+    grid-column: 1 / -1;
+    background: var(--bg);
+    border: 1px dashed var(--border);
+    border-radius: 10px;
+    padding: 14px;
+  }
+  .payment-split.active { display: block; }
+  .payment-split-title {
+    font-size: 12px; font-weight: 700; color: var(--green);
+    margin-bottom: 10px; display: flex; align-items: center; gap: 6px;
+  }
+  .payment-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 12px;
+  }
+  .payment-help {
+    margin-top: 8px; font-size: 11px; color: var(--txt-s);
+  }
+
+  /* ── TABLE ── */
+  .table-card {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: var(--radius); overflow: hidden;
+  }
+  .table-header {
+    padding: 16px 20px; display: flex; align-items: center;
+    justify-content: space-between; border-bottom: 1px solid var(--border);
+  }
+  .table-header h3 { font-size: 14px; font-weight: 700; color: var(--txt-h); }
+  .table-count { font-size: 12px; color: var(--txt-s); }
+  .table-wrap  { overflow-x: auto; }
+  table { width: 100%; border-collapse: collapse; }
+  thead th {
+    padding: 10px 14px; text-align: left; font-size: 11px; font-weight: 600;
+    color: var(--txt-m); text-transform: uppercase; letter-spacing: .5px;
+    background: var(--bg); border-bottom: 1px solid var(--border); white-space: nowrap;
+  }
+  tbody tr { transition: background .12s; }
+  tbody tr:hover { background: #fafaf8; }
+  tbody td {
+    padding: 11px 14px; font-size: 13px; color: var(--txt-h);
+    border-bottom: 1px solid var(--border); white-space: nowrap;
+  }
+  tbody tr:last-child td { border-bottom: none; }
+  .tag-sim { background: var(--green-lt); color: var(--green); padding: 2px 8px; border-radius: 5px; font-size: 11px; font-weight: 600; }
+  .tag-nao { background: var(--bg); color: var(--txt-s); padding: 2px 8px; border-radius: 5px; font-size: 11px; font-weight: 600; border: 1px solid var(--border); }
+  .val-neg { color: #c0392b; font-weight: 700; }
+
+  /* ── EMPTY / LOADING ── */
+  .empty {
+    text-align: center; padding: 48px 20px;
+    color: var(--txt-s); font-size: 13px;
+  }
+  .empty .ico { font-size: 36px; margin-bottom: 10px; }
+
+  .spinner {
+    display: inline-block; width: 18px; height: 18px;
+    border: 2px solid #ffffff44; border-top-color: #fff;
+    border-radius: 50%; animation: spin .7s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* ── FOOTER ── */
+  #version {
+    position: fixed; bottom: 10px; right: 14px;
+    font-size: 10px; color: var(--txt-s);
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 4px; padding: 3px 8px;
+    box-shadow: 0 1px 4px rgba(0,0,0,.08);
+  }
+
+  @media (max-width: 600px) {
+    .header { padding: 12px 16px; }
+    .main   { padding: 16px 14px 60px; }
+    .field.wide { grid-column: span 1; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ══ HEADER ══ -->
+<div class="header">
+  <img src="https://explosaoalimentos.com.br/wp-content/uploads/2024/11/logo-menor-e1731554322568.png" alt="Explosão Alimentos">
+  <div class="header-info">
+    <div class="header-title">Caixa Dinheiro</div>
+    <div class="header-sub">Controle de vendas e sangrias em dinheiro</div>
+  </div>
+  <div class="header-date">📅 <span id="dataHoje">—</span></div>
+</div>
+
+<!-- ══ MAIN ══ -->
+<div class="main">
+
+  <!-- KPIs -->
+  <div class="kpis">
+    <div class="kpi">
+      <div class="kpi-icon green">💵</div>
+      <div class="kpi-label">Total Vendas</div>
+      <div class="kpi-val green" id="kpiTotalVendas">—</div>
+      <div class="kpi-sub" id="kpiQtdVendas">carregando…</div>
+    </div>
+    <div class="kpi">
+      <div class="kpi-icon green">💵</div>
+      <div class="kpi-label">Dinheiro</div>
+      <div class="kpi-val green" id="kpiDinheiro">—</div>
+      <div class="kpi-sub">recebido no período</div>
+    </div>
+    <div class="kpi">
+      <div class="kpi-icon blue">⚡</div>
+      <div class="kpi-label">PIX</div>
+      <div class="kpi-val" id="kpiPix">—</div>
+      <div class="kpi-sub">recebido no período</div>
+    </div>
+    <div class="kpi">
+      <div class="kpi-icon purple">💳</div>
+      <div class="kpi-label">Cartão Crédito</div>
+      <div class="kpi-val" id="kpiCredito">—</div>
+      <div class="kpi-sub">recebido no período</div>
+    </div>
+    <div class="kpi">
+      <div class="kpi-icon blue">💳</div>
+      <div class="kpi-label">Cartão Débito</div>
+      <div class="kpi-val" id="kpiDebito">—</div>
+      <div class="kpi-sub">recebido no período</div>
+    </div>
+    <div class="kpi">
+      <div class="kpi-icon red">💸</div>
+      <div class="kpi-label">Sangrias</div>
+      <div class="kpi-val red" id="kpiSangrias">—</div>
+      <div class="kpi-sub" id="kpiQtdSangrias">—</div>
+    </div>
+    <div class="kpi">
+      <div class="kpi-icon orange">📊</div>
+      <div class="kpi-label">Saldo em Dinheiro</div>
+      <div class="kpi-val" id="kpiSaldo">—</div>
+      <div class="kpi-sub">dinheiro − sangrias</div>
+    </div>
+    <div class="kpi">
+      <div class="kpi-icon orange">🧾</div>
+      <div class="kpi-label">Vendas com Notinha</div>
+      <div class="kpi-val" id="kpiNotinha">—</div>
+      <div class="kpi-sub" id="kpiSemNotinha">—</div>
+    </div>
+  </div>
+
+  <!-- FILTRO DE DATA -->
+  <div class="filter-bar">
+    <label>Filtrar por data:</label>
+    <input type="date" id="filtroData">
+    <button class="btn-sm btn-outline" onclick="filtrarHoje()">Hoje</button>
+    <button class="btn-sm btn-outline" onclick="filtrarTudo()">Todos</button>
+    <div class="spacer"></div>
+    <button class="btn-sm btn-outline" onclick="carregarDados()">🔄 Atualizar</button>
+  </div>
+
+  <!-- TABS -->
+  <div class="tabs">
+    <button class="tab active" onclick="trocarTab('vendas', this)">
+      🛒 Vendas
+    </button>
+    <button class="tab" onclick="trocarTab('sangrias', this)">
+      💸 Sangrias de Caixa
+    </button>
+  </div>
+
+  <!-- ══ PAINEL VENDAS ══ -->
+  <div class="panel active" id="panel-vendas">
+
+    <div class="form-card">
+      <h3>➕ Registrar Nova Venda</h3>
+      <div class="form-grid">
+        <div class="field">
+          <label>Nº da Venda (ERP)</label>
+          <input type="number" id="v-numero" placeholder="Nº do Fácil123">
+        </div>
+        <div class="field">
+          <label>Data</label>
+          <input type="date" id="v-data">
+        </div>
+        <div class="field">
+          <label>Total da Venda (R$)</label>
+          <input type="text" id="v-total" placeholder="0,00" inputmode="decimal">
+        </div>
+        <div class="field">
+          <label>Forma de Pagamento</label>
+          <select id="v-pagamento" onchange="togglePagamentoMisto()">
+            <option value="dinheiro">Dinheiro</option>
+            <option value="pix">PIX</option>
+            <option value="credito">Cartão de crédito</option>
+            <option value="debito">Cartão de débito</option>
+            <option value="misto">Parte de uma forma e parte de outra</option>
+          </select>
+        </div>
+        <div class="payment-split" id="pagamento-misto-box">
+          <div class="payment-split-title">💳 Detalhar pagamento misto</div>
+          <div class="payment-grid">
+            <div class="field">
+              <label>Dinheiro (R$)</label>
+              <input type="text" id="v-pag-dinheiro" placeholder="0,00" inputmode="decimal">
+            </div>
+            <div class="field">
+              <label>PIX (R$)</label>
+              <input type="text" id="v-pag-pix" placeholder="0,00" inputmode="decimal">
+            </div>
+            <div class="field">
+              <label>Cartão crédito (R$)</label>
+              <input type="text" id="v-pag-credito" placeholder="0,00" inputmode="decimal">
+            </div>
+            <div class="field">
+              <label>Cartão débito (R$)</label>
+              <input type="text" id="v-pag-debito" placeholder="0,00" inputmode="decimal">
+            </div>
+          </div>
+          <div class="form-footer" style="margin-top:12px;">
+            <button type="button" class="btn-sm btn-outline" onclick="preencherRestantePix()">Colocar restante em PIX</button>
+            <span class="payment-help" id="pagamento-misto-resumo">Ex.: informe R$ 200,00 em dinheiro e clique para jogar o restante no PIX.</span>
+          </div>
+        </div>
+        <div class="field">
+          <label>Nome do Cliente</label>
+          <input type="text" id="v-cliente" placeholder="Nome ou —">
+        </div>
+        <div class="field wide">
+          <label>Observação</label>
+          <textarea id="v-obs" placeholder="Observações opcionais…"></textarea>
+        </div>
+        <div class="field">
+          <label>Notinha</label>
+          <div class="check-row">
+            <input type="checkbox" id="v-notinha">
+            <span>Notinha emitida</span>
+          </div>
+        </div>
+      </div>
+      <div class="form-footer">
+        <button class="btn-primary" id="btn-salvar-venda" onclick="salvarVenda()">
+          <span id="ico-venda">💾</span> Salvar Venda
+        </button>
+        <span class="form-msg" id="msg-venda"></span>
+      </div>
+    </div>
+
+    <div class="table-card">
+      <div class="table-header">
+        <h3>📋 Vendas Registradas</h3>
+        <span class="table-count" id="count-vendas">—</span>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Data</th>
+              <th>Total</th>
+              <th>Pagamento</th>
+              <th>Cliente</th>
+              <th>Observação</th>
+              <th>Notinha</th>
+            </tr>
+          </thead>
+          <tbody id="tb-vendas">
+            <tr><td colspan="7"><div class="empty"><div class="ico">📭</div>Carregando dados…</div></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div><!-- /panel-vendas -->
+
+  <!-- ══ PAINEL SANGRIAS ══ -->
+  <div class="panel" id="panel-sangrias">
+
+    <div class="form-card">
+      <h3>➕ Registrar Sangria de Caixa</h3>
+      <div class="form-grid">
+        <div class="field">
+          <label>Data</label>
+          <input type="date" id="s-data">
+        </div>
+        <div class="field">
+          <label>Hora</label>
+          <input type="time" id="s-hora">
+        </div>
+        <div class="field">
+          <label>Valor Retirado (R$)</label>
+          <input type="text" id="s-valor" placeholder="0,00" inputmode="decimal">
+        </div>
+        <div class="field">
+          <label>Responsável</label>
+          <input type="text" id="s-responsavel" placeholder="Nome do responsável">
+        </div>
+        <div class="field wide">
+          <label>Motivo da Sangria</label>
+          <textarea id="s-motivo" placeholder="Descreva o motivo…"></textarea>
+        </div>
+      </div>
+      <div class="form-footer">
+        <button class="btn-primary" id="btn-salvar-sangria" onclick="salvarSangria()">
+          <span id="ico-sangria">💾</span> Salvar Sangria
+        </button>
+        <span class="form-msg" id="msg-sangria"></span>
+      </div>
+    </div>
+
+    <div class="table-card">
+      <div class="table-header">
+        <h3>📋 Sangrias Registradas</h3>
+        <span class="table-count" id="count-sangrias">—</span>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Data</th>
+              <th>Hora</th>
+              <th>Valor</th>
+              <th>Motivo</th>
+              <th>Responsável</th>
+            </tr>
+          </thead>
+          <tbody id="tb-sangrias">
+            <tr><td colspan="5"><div class="empty"><div class="ico">📭</div>Carregando dados…</div></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div><!-- /panel-sangrias -->
+
+</div><!-- /main -->
+
+<div id="version">Rev 1.2 — pagamentos por tipo</div>
+
+<script>
+// ────────────────────────────────────────────────────────────
+//  CONFIG — troque apenas a URL do script se precisar
+// ────────────────────────────────────────────────────────────
+const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbztWZAYjUHWjhHO_ZchHGe-jqYJWAz8kTiH9KPYqCuRD1tywBR7133MhW5LHsEewQ65KQ/exec';
+
+// ────────────────────────────────────────────────────────────
+let todosVendas   = [];
+let todosSangrias = [];
+let filtroAtual   = null;   // null = todos; 'YYYY-MM-DD' = filtra
+
+// ────────────────────────────────────────────────────────────
+//  INIT
+// ────────────────────────────────────────────────────────────
+document.addEventListener('DOMContentLoaded', () => {
+  const hoje = hojeStr();
+  document.getElementById('dataHoje').textContent = formatarDataBR(hoje);
+  document.getElementById('v-data').value = hoje;
+  document.getElementById('s-data').value = hoje;
+  document.getElementById('s-hora').value = horaAtual();
+  document.getElementById('filtroData').value = hoje;
+  filtroAtual = hoje;
+  carregarDados();
+});
+
+// ────────────────────────────────────────────────────────────
+//  CARREGAR DADOS DO SHEETS
+// ────────────────────────────────────────────────────────────
+async function carregarDados() {
+  try {
+    const r    = await fetch(SCRIPT_URL + '?acao=tudo');
+    const json = await r.json();
+
+    todosVendas   = json.vendas   || [];
+    todosSangrias = json.sangrias || [];
+
+    renderizar();
+  } catch (e) {
+    console.error(e);
+    mostrarVazio('tb-vendas',   7, '❌ Erro ao carregar dados. Verifique a conexão.');
+    mostrarVazio('tb-sangrias', 5, '❌ Erro ao carregar dados. Verifique a conexão.');
+  }
+}
+
+// ────────────────────────────────────────────────────────────
+//  RENDERIZAR TABELAS + KPIs
+// ────────────────────────────────────────────────────────────
+function renderizar() {
+  const vFiltr = filtroAtual
+    ? todosVendas.filter(v => normalizarData(v['Data'] || v['data']) === filtroAtual)
+    : todosVendas;
+
+  const sFiltr = filtroAtual
+    ? todosSangrias.filter(s => normalizarData(s['Data'] || s['data']) === filtroAtual)
+    : todosSangrias;
+
+  renderVendas(vFiltr);
+  renderSangrias(sFiltr);
+  atualizarKPIs(vFiltr, sFiltr);
+}
+
+function renderVendas(lista) {
+  const tb = document.getElementById('tb-vendas');
+  document.getElementById('count-vendas').textContent =
+    lista.length + (lista.length === 1 ? ' venda' : ' vendas');
+
+  if (!lista.length) {
+    mostrarVazio('tb-vendas', 7, '📭 Nenhuma venda encontrada para o período.');
+    return;
+  }
+
+  // Ordena decrescente pelo número
+  const ordenado = [...lista].sort((a, b) =>
+    Number(b['Numero da venda'] || b['numero'] || 0) -
+    Number(a['Numero da venda'] || a['numero'] || 0)
+  );
+
+  tb.innerHTML = ordenado.map(v => {
+    const num    = v['Numero da venda'] || v['numero'] || '—';
+    const data   = formatarDataBR(normalizarData(v['Data'] || v['data']));
+    const total  = fmtMoeda(v['Total da venda'] || v['total'] || 0);
+    const pag    = v['Pagamento detalhado'] || v['pagamentoDetalhado'] || v['pagamento_detalhado'] || montarPagamentoTabela(v);
+    const cli    = v['Nome do cliente'] || v['cliente'] || '—';
+    const obs    = v['Observação'] || v['observacao'] || '—';
+    const not    = (v['Notinha'] || v['notinha'] || '').toString().toLowerCase();
+    const tagNot = (not === 'sim' || not === 'true')
+      ? '<span class="tag-sim">Sim</span>'
+      : '<span class="tag-nao">Não</span>';
+
+    return `<tr>
+      <td>${num}</td>
+      <td>${data}</td>
+      <td>${total}</td>
+      <td style="max-width:210px;white-space:normal;font-size:12px;color:var(--txt-m)">${pag}</td>
+      <td>${cli}</td>
+      <td style="max-width:200px;white-space:normal;font-size:12px;color:var(--txt-m)">${obs}</td>
+      <td>${tagNot}</td>
+    </tr>`;
+  }).join('');
+}
+
+function renderSangrias(lista) {
+  const tb = document.getElementById('tb-sangrias');
+  document.getElementById('count-sangrias').textContent =
+    lista.length + (lista.length === 1 ? ' sangria' : ' sangrias');
+
+  if (!lista.length) {
+    mostrarVazio('tb-sangrias', 5, '📭 Nenhuma sangria encontrada para o período.');
+    return;
+  }
+
+  const ordenado = [...lista].sort((a, b) => {
+    const da = normalizarData(a['Data'] || a['data']);
+    const db = normalizarData(b['Data'] || b['data']);
+    const ha = a['Hora'] || a['hora'] || '';
+    const hb = b['Hora'] || b['hora'] || '';
+    return (db + hb).localeCompare(da + ha);
+  });
+
+  tb.innerHTML = ordenado.map(s => {
+    const data   = formatarDataBR(normalizarData(s['Data'] || s['data']));
+    const hora   = s['Hora'] || s['hora'] || '—';
+    const valor  = fmtMoeda(s['Valor retirado'] || s['valor'] || 0);
+    const motivo = s['Motivo da sangria'] || s['motivo'] || '—';
+    const resp   = s['Responsável'] || s['responsavel'] || '—';
+
+    return `<tr>
+      <td>${data}</td>
+      <td>${hora}</td>
+      <td class="val-neg">${valor}</td>
+      <td style="max-width:220px;white-space:normal;font-size:12px;color:var(--txt-m)">${motivo}</td>
+      <td>${resp}</td>
+    </tr>`;
+  }).join('');
+}
+
+function montarPagamentoTabela(v) {
+  const partes = [];
+  const dinheiro = valorPagamento(v, 'dinheiro');
+  const pix = valorPagamento(v, 'pix');
+  const credito = valorPagamento(v, 'credito');
+  const debito = valorPagamento(v, 'debito');
+  if (dinheiro > 0) partes.push(fmtMoeda(dinheiro) + ' dinheiro');
+  if (pix > 0) partes.push(fmtMoeda(pix) + ' PIX');
+  if (credito > 0) partes.push(fmtMoeda(credito) + ' crédito');
+  if (debito > 0) partes.push(fmtMoeda(debito) + ' débito');
+  return partes.length ? partes.join(' + ') : (v['Forma de pagamento'] || v['formaPagamento'] || '—');
+}
+
+function atualizarKPIs(vendas, sangrias) {
+  const periodoLabel = filtroAtual ? 'no período' : 'em todos os registros';
+
+  const totVendas  = vendas.reduce((a, v) => a + numero(v['Total da venda'] || v['total'] || 0), 0);
+  const totSangr   = sangrias.reduce((a, s) => a + numero(s['Valor retirado'] || s['valor'] || 0), 0);
+
+  const totDinheiro = vendas.reduce((a, v) => a + valorPagamento(v, 'dinheiro'), 0);
+  const totPix      = vendas.reduce((a, v) => a + valorPagamento(v, 'pix'), 0);
+  const totCredito  = vendas.reduce((a, v) => a + valorPagamento(v, 'credito'), 0);
+  const totDebito   = vendas.reduce((a, v) => a + valorPagamento(v, 'debito'), 0);
+
+  // Para conferência física do caixa, sangria abate somente do dinheiro.
+  const saldoDinheiro = totDinheiro - totSangr;
+
+  const comNotinha = vendas.filter(v => {
+    const n = (v['Notinha'] || v['notinha'] || '').toString().toLowerCase();
+    return n === 'sim' || n === 'true';
+  }).length;
+
+  document.getElementById('kpiTotalVendas').textContent = fmtMoeda(totVendas);
+  document.getElementById('kpiQtdVendas').textContent   = vendas.length + ' venda(s) ' + periodoLabel;
+  document.getElementById('kpiDinheiro').textContent    = fmtMoeda(totDinheiro);
+  document.getElementById('kpiPix').textContent         = fmtMoeda(totPix);
+  document.getElementById('kpiCredito').textContent     = fmtMoeda(totCredito);
+  document.getElementById('kpiDebito').textContent      = fmtMoeda(totDebito);
+  document.getElementById('kpiNotinha').textContent     = comNotinha;
+  document.getElementById('kpiSemNotinha').textContent  = (vendas.length - comNotinha) + ' sem notinha ' + periodoLabel;
+  document.getElementById('kpiSangrias').textContent    = fmtMoeda(totSangr);
+  document.getElementById('kpiQtdSangrias').textContent = sangrias.length + ' sangria(s) ' + periodoLabel;
+
+  const el = document.getElementById('kpiSaldo');
+  el.textContent = fmtMoeda(saldoDinheiro);
+  el.className   = 'kpi-val ' + (saldoDinheiro >= 0 ? 'green' : 'red');
+}
+
+function valorPagamento(v, tipo) {
+  const mapa = {
+    dinheiro: ['Dinheiro', 'Valor dinheiro', 'valorDinheiro', 'valor_dinheiro', 'dinheiro'],
+    pix:      ['PIX', 'Pix', 'Valor PIX', 'valorPix', 'valor_pix', 'pix'],
+    credito:  ['Cartão de crédito', 'Cartao de credito', 'Crédito', 'Credito', 'Valor crédito', 'valorCredito', 'valor_credito', 'credito'],
+    debito:   ['Cartão de débito', 'Cartao de debito', 'Débito', 'Debito', 'Valor débito', 'valorDebito', 'valor_debito', 'debito']
+  };
+
+  const possiveis = mapa[tipo] || [];
+  for (const nome of possiveis) {
+    if (v[nome] !== undefined && v[nome] !== '') return numero(v[nome]);
+  }
+
+  // Compatibilidade com registros antigos: se não houver colunas novas, assume dinheiro.
+  const temColunasNovas = ['Dinheiro','PIX','Cartão de crédito','Cartão de débito','valorDinheiro','valorPix','valorCredito','valorDebito']
+    .some(c => v[c] !== undefined && v[c] !== '');
+  if (!temColunasNovas && tipo === 'dinheiro') {
+    return numero(v['Total da venda'] || v['total'] || 0);
+  }
+
+  return 0;
+}
+
+// ────────────────────────────────────────────────────────────
+//  SALVAR VENDA
+// ────────────────────────────────────────────────────────────
+async function salvarVenda() {
+  const numero = document.getElementById('v-numero').value.trim();
+  const data  = document.getElementById('v-data').value;
+  const total = parseValorBR(document.getElementById('v-total').value);
+  const cli   = document.getElementById('v-cliente').value.trim();
+  const obs   = document.getElementById('v-obs').value.trim();
+  const not   = document.getElementById('v-notinha').checked ? 'Sim' : 'Não';
+  const pagamento = obterPagamentoVenda(total);
+
+  if (!numero || !data || !total) {
+    setMsg('msg-venda', 'Preencha nº da venda, data e total.', 'err');
+    return;
+  }
+
+  if (!pagamento.ok) {
+    setMsg('msg-venda', pagamento.erro, 'err');
+    return;
+  }
+
+  setBtnLoading('btn-salvar-venda', 'ico-venda', true);
+
+  try {
+    const r = await fetch(SCRIPT_URL, {
+      method: 'POST',
+      body: JSON.stringify({
+        tipo: 'venda',
+        numero: parseInt(numero, 10),
+        data: formatarDataPlanilha(data),
+        total: total,
+        cliente: cli || '—',
+        observacao: obs,
+        notinha: not,
+        formaPagamento: pagamento.formaPagamento,
+        pagamentoDetalhado: pagamento.pagamentoDetalhado,
+        valorDinheiro: pagamento.valorDinheiro,
+        valorPix: pagamento.valorPix,
+        valorCredito: pagamento.valorCredito,
+        valorDebito: pagamento.valorDebito
+      })
+    });
+    const json = await r.json();
+
+    if (json.ok) {
+      setMsg('msg-venda', `✅ Venda #${json.numero} salva com sucesso!`, 'ok');
+      limparFormVenda();
+      // Pequeno delay para o Sheets confirmar a escrita antes de reler
+      setTimeout(() => carregarDados(), 800);
+    } else {
+      setMsg('msg-venda', '❌ Erro: ' + (json.erro || 'desconhecido'), 'err');
+    }
+  } catch (e) {
+    setMsg('msg-venda', '❌ Falha na conexão. Tente novamente.', 'err');
+  }
+
+  setBtnLoading('btn-salvar-venda', 'ico-venda', false);
+}
+
+// ────────────────────────────────────────────────────────────
+//  SALVAR SANGRIA
+// ────────────────────────────────────────────────────────────
+async function salvarSangria() {
+  const data  = document.getElementById('s-data').value;
+  const hora  = document.getElementById('s-hora').value;
+  const valor = document.getElementById('s-valor').value;
+  const mot   = document.getElementById('s-motivo').value.trim();
+  const resp  = document.getElementById('s-responsavel').value.trim();
+
+  if (!data || !valor || !resp) {
+    setMsg('msg-sangria', 'Preencha data, valor e responsável.', 'err');
+    return;
+  }
+
+  setBtnLoading('btn-salvar-sangria', 'ico-sangria', true);
+
+  try {
+    const r = await fetch(SCRIPT_URL, {
+      method: 'POST',
+      body: JSON.stringify({
+        tipo: 'sangria',
+        data: formatarDataPlanilha(data),
+        hora: hora || horaAtual(),
+        valor: parseFloat(valor),
+        motivo: mot || '—',
+        responsavel: resp
+      })
+    });
+    const json = await r.json();
+
+    if (json.ok) {
+      setMsg('msg-sangria', '✅ Sangria salva com sucesso!', 'ok');
+      limparFormSangria();
+      setTimeout(() => carregarDados(), 800);
+    } else {
+      setMsg('msg-sangria', '❌ Erro: ' + (json.erro || 'desconhecido'), 'err');
+    }
+  } catch (e) {
+    setMsg('msg-sangria', '❌ Falha na conexão. Tente novamente.', 'err');
+  }
+
+  setBtnLoading('btn-salvar-sangria', 'ico-sangria', false);
+}
+
+// ────────────────────────────────────────────────────────────
+//  HELPERS UI
+// ────────────────────────────────────────────────────────────
+function trocarTab(tab, el) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  el.classList.add('active');
+  document.getElementById('panel-' + tab).classList.add('active');
+}
+
+function filtrarHoje() {
+  const hoje = hojeStr();
+  document.getElementById('filtroData').value = hoje;
+  filtroAtual = hoje;
+  renderizar();
+}
+
+function filtrarTudo() {
+  document.getElementById('filtroData').value = '';
+  filtroAtual = null;
+  renderizar();
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  document.getElementById('filtroData').addEventListener('change', e => {
+    filtroAtual = e.target.value || null;
+    renderizar();
+  });
+
+  ['v-total', 'v-pag-dinheiro', 'v-pag-pix', 'v-pag-credito', 'v-pag-debito'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.addEventListener('input', atualizarResumoPagamentoMisto);
+  });
+});
+
+
+function togglePagamentoMisto() {
+  const forma = document.getElementById('v-pagamento')?.value;
+  const box = document.getElementById('pagamento-misto-box');
+  if (!box) return;
+  box.classList.toggle('active', forma === 'misto');
+  atualizarResumoPagamentoMisto();
+}
+
+function preencherRestantePix() {
+  const total = parseValorBR(document.getElementById('v-total').value);
+  const dinheiro = parseValorBR(document.getElementById('v-pag-dinheiro').value);
+  const credito = parseValorBR(document.getElementById('v-pag-credito').value);
+  const debito = parseValorBR(document.getElementById('v-pag-debito').value);
+  const restante = Math.max(0, total - dinheiro - credito - debito);
+  document.getElementById('v-pag-pix').value = restante.toFixed(2);
+  atualizarResumoPagamentoMisto();
+}
+
+function obterPagamentoVenda(totalVenda) {
+  const forma = document.getElementById('v-pagamento').value;
+  const nomes = {
+    dinheiro: 'Dinheiro',
+    pix: 'PIX',
+    credito: 'Cartão de crédito',
+    debito: 'Cartão de débito',
+    misto: 'Pagamento misto'
+  };
+
+  if (forma !== 'misto') {
+    return {
+      ok: true,
+      formaPagamento: nomes[forma] || forma,
+      pagamentoDetalhado: nomes[forma] || forma,
+      valorDinheiro: forma === 'dinheiro' ? totalVenda : 0,
+      valorPix: forma === 'pix' ? totalVenda : 0,
+      valorCredito: forma === 'credito' ? totalVenda : 0,
+      valorDebito: forma === 'debito' ? totalVenda : 0
+    };
+  }
+
+  const valorDinheiro = parseValorBR(document.getElementById('v-pag-dinheiro').value);
+  const valorPix = parseValorBR(document.getElementById('v-pag-pix').value);
+  const valorCredito = parseValorBR(document.getElementById('v-pag-credito').value);
+  const valorDebito = parseValorBR(document.getElementById('v-pag-debito').value);
+  const soma = valorDinheiro + valorPix + valorCredito + valorDebito;
+
+  if (soma <= 0) {
+    return { ok: false, erro: 'Informe ao menos um valor no pagamento misto.' };
+  }
+
+  if (Math.abs(soma - totalVenda) > 0.009) {
+    return { ok: false, erro: `A soma das formas de pagamento (${fmtMoeda(soma)}) precisa bater com o total da venda (${fmtMoeda(totalVenda)}).` };
+  }
+
+  const partes = [];
+  if (valorDinheiro > 0) partes.push(`${fmtMoeda(valorDinheiro)} dinheiro`);
+  if (valorPix > 0) partes.push(`${fmtMoeda(valorPix)} PIX`);
+  if (valorCredito > 0) partes.push(`${fmtMoeda(valorCredito)} cartão crédito`);
+  if (valorDebito > 0) partes.push(`${fmtMoeda(valorDebito)} cartão débito`);
+
+  return {
+    ok: true,
+    formaPagamento: 'Pagamento misto',
+    pagamentoDetalhado: partes.join(' + '),
+    valorDinheiro,
+    valorPix,
+    valorCredito,
+    valorDebito
+  };
+}
+
+function atualizarResumoPagamentoMisto() {
+  const resumo = document.getElementById('pagamento-misto-resumo');
+  if (!resumo) return;
+  const total = parseValorBR(document.getElementById('v-total').value);
+  const dinheiro = parseValorBR(document.getElementById('v-pag-dinheiro').value);
+  const pix = parseValorBR(document.getElementById('v-pag-pix').value);
+  const credito = parseValorBR(document.getElementById('v-pag-credito').value);
+  const debito = parseValorBR(document.getElementById('v-pag-debito').value);
+  const soma = dinheiro + pix + credito + debito;
+  const diferenca = total - soma;
+  resumo.textContent = total > 0
+    ? `Informado: ${fmtMoeda(soma)} | Diferença: ${fmtMoeda(diferenca)}`
+    : 'Ex.: informe R$ 200,00 em dinheiro e clique para jogar o restante no PIX.';
+}
+
+function limparFormVenda() {
+  document.getElementById('v-numero').value = '';
+  document.getElementById('v-total').value = '';
+  document.getElementById('v-cliente').value = '';
+  document.getElementById('v-obs').value = '';
+  document.getElementById('v-notinha').checked = false;
+  document.getElementById('v-pagamento').value = 'dinheiro';
+  document.getElementById('v-pag-dinheiro').value = '';
+  document.getElementById('v-pag-pix').value = '';
+  document.getElementById('v-pag-credito').value = '';
+  document.getElementById('v-pag-debito').value = '';
+  document.getElementById('v-data').value = hojeStr();
+  togglePagamentoMisto();
+}
+
+function limparFormSangria() {
+  document.getElementById('s-valor').value = '';
+  document.getElementById('s-motivo').value = '';
+  document.getElementById('s-responsavel').value = '';
+  document.getElementById('s-data').value = hojeStr();
+  document.getElementById('s-hora').value = horaAtual();
+}
+
+function setMsg(id, texto, tipo) {
+  const el = document.getElementById(id);
+  el.textContent = texto;
+  el.className = 'form-msg ' + tipo;
+  setTimeout(() => { el.textContent = ''; el.className = 'form-msg'; }, 5000);
+}
+
+function setBtnLoading(btnId, icoId, loading) {
+  const btn = document.getElementById(btnId);
+  const ico = document.getElementById(icoId);
+  btn.disabled = loading;
+  ico.innerHTML = loading ? '<span class="spinner"></span>' : '💾';
+}
+
+function mostrarVazio(tbId, cols, msg) {
+  document.getElementById(tbId).innerHTML =
+    `<tr><td colspan="${cols}"><div class="empty"><div class="ico">📭</div>${msg}</div></td></tr>`;
+}
+
+// ────────────────────────────────────────────────────────────
+//  HELPERS DE DATA / FORMATAÇÃO
+// ────────────────────────────────────────────────────────────
+function hojeStr() {
+  const d = new Date();
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, '0');
+  const dia = String(d.getDate()).padStart(2, '0');
+  return `${y}-${m}-${dia}`;
+}
+
+function horaAtual() {
+  return new Date().toTimeString().slice(0, 5);   // HH:MM
+}
+
+function formatarDataPlanilha(yyyy_mm_dd) {
+  // input[type=date] sempre retorna "YYYY-MM-DD"
+  if (!yyyy_mm_dd) return '';
+  const parts = yyyy_mm_dd.split('-');
+  if (parts.length !== 3) return yyyy_mm_dd;
+  const y   = parseInt(parts[0], 10);
+  const m   = parseInt(parts[1], 10);
+  const d   = parseInt(parts[2], 10);
+  return `${String(d).padStart(2,'0')}/${String(m).padStart(2,'0')}/${y}`;
+}
+
+function normalizarData(val) {
+  // Normaliza para YYYY-MM-DD independente do formato
+  if (!val) return '';
+  const s = val.toString().trim();
+  if (/^\d{4}-\d{2}-\d{2}/.test(s)) return s.slice(0, 10);
+  if (/^\d{2}\/\d{2}\/\d{4}/.test(s)) {
+    const [d, m, y] = s.split('/');
+    return `${y}-${m}-${d}`;
+  }
+  // Objeto Date do Sheets (serializado como string)
+  const dt = new Date(s);
+  if (!isNaN(dt)) return dt.toISOString().split('T')[0];
+  return s;
+}
+
+function formatarDataBR(yyyy_mm_dd) {
+  if (!yyyy_mm_dd || yyyy_mm_dd.length < 10) return yyyy_mm_dd || '—';
+  const [y, m, d] = yyyy_mm_dd.split('-');
+  return `${d}/${m}/${y}`;
+}
+
+function parseValorBR(val) {
+  if (val === null || val === undefined || val === '') return 0;
+
+  // Quando vem do Google Sheets como número, preserve o decimal.
+  // Ex.: 25.5 deve continuar 25.5, e não virar 255.
+  if (typeof val === 'number') {
+    return Number.isFinite(val) ? val : 0;
+  }
+
+  let s = String(val)
+    .trim()
+    .replace(/\s/g, '')
+    .replace('R$', '')
+    .replace(/[^0-9,.-]/g, '');
+
+  if (!s) return 0;
+
+  const temVirgula = s.includes(',');
+  const temPonto = s.includes('.');
+
+  if (temVirgula && temPonto) {
+    // Usa o último separador como decimal.
+    // Ex.: 1.234,56 => 1234.56 | 1,234.56 => 1234.56
+    if (s.lastIndexOf(',') > s.lastIndexOf('.')) {
+      s = s.replace(/\./g, '').replace(',', '.');
+    } else {
+      s = s.replace(/,/g, '');
+    }
+  } else if (temVirgula) {
+    // Padrão brasileiro: 25,50 => 25.50
+    s = s.replace(/\./g, '').replace(',', '.');
+  } else if (temPonto) {
+    // Padrão do input/Sheets: 25.50 => 25.50
+    // Se houver mais de um ponto, considera os anteriores como milhar.
+    const partes = s.split('.');
+    if (partes.length > 2) {
+      const decimal = partes.pop();
+      s = partes.join('') + '.' + decimal;
+    }
+  }
+
+  const n = Number(s);
+  return Number.isFinite(n) ? n : 0;
+}
+
+function numero(val) {
+  return parseValorBR(val);
+}
+
+function fmtMoeda(val) {
+  const n = parseValorBR(val);
+  return n.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+}
+</script>
+</body>
+</html>
