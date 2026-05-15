@@ -433,16 +433,16 @@
       <h3>➕ Registrar Nova Venda</h3>
       <div class="form-grid">
         <div class="field">
-          <label>Nº da Venda (ERP)</label>
-          <input type="number" id="v-numero" placeholder="Nº do Fácil123">
+          <label>Nº da Venda (ERP) *</label>
+          <input type="number" id="v-numero" placeholder="Nº do Fácil123" required>
         </div>
         <div class="field">
           <label>Data</label>
           <input type="date" id="v-data">
         </div>
         <div class="field">
-          <label>Total da Venda (R$)</label>
-          <input type="text" id="v-total" placeholder="0,00" inputmode="decimal">
+          <label>Total da Venda (R$) *</label>
+          <input type="text" id="v-total" placeholder="0,00" inputmode="decimal" required>
         </div>
         <div class="field">
           <label>Forma de Pagamento</label>
@@ -458,7 +458,7 @@
           </select>
         </div>
         <div class="field">
-          <label>Vendedor</label>
+          <label>Vendedor *</label>
           <input type="hidden" id="v-vendedor" value="">
           <div class="seller-options" id="vendedor-opcoes">
             <button type="button" class="seller-btn" onclick="selecionarVendedor('Maria Eduarda', this)">Maria Eduarda</button>
@@ -505,8 +505,8 @@
           </div>
         </div>
         <div class="field">
-          <label>Nome do Cliente</label>
-          <input type="text" id="v-cliente" placeholder="Nome ou —">
+          <label>Nome do Cliente *</label>
+          <input type="text" id="v-cliente" placeholder="Nome do cliente" required>
         </div>
         <div class="field wide">
           <label>Observação</label>
@@ -629,7 +629,7 @@
 
 </div><!-- /main -->
 
-<div id="version">Rev 2.3 — filtro vendedor</div>
+<div id="version">Rev 2.4 — filtro vendedor</div>
 
 <script>
 // ────────────────────────────────────────────────────────────
@@ -975,13 +975,32 @@ async function salvarVenda() {
   const not   = document.getElementById('v-notinha').checked ? 'Sim' : 'Não';
   const pagamento = obterPagamentoVenda(total);
 
-  if (!numero || !data || !total) {
-    setMsg('msg-venda', 'Preencha nº da venda, data e total.', 'err');
+  if (!numero) {
+    setMsg('msg-venda', 'Informe o número da venda.', 'err');
+    document.getElementById('v-numero').focus();
+    return;
+  }
+
+  if (!data) {
+    setMsg('msg-venda', 'Informe a data da venda.', 'err');
+    document.getElementById('v-data').focus();
+    return;
+  }
+
+  if (!total || total <= 0) {
+    setMsg('msg-venda', 'Informe o total da venda.', 'err');
+    document.getElementById('v-total').focus();
     return;
   }
 
   if (!vendedor) {
     setMsg('msg-venda', 'Selecione o vendedor.', 'err');
+    return;
+  }
+
+  if (!cli) {
+    setMsg('msg-venda', 'Informe o nome do cliente.', 'err');
+    document.getElementById('v-cliente').focus();
     return;
   }
 
@@ -1000,8 +1019,8 @@ async function salvarVenda() {
         numero: parseInt(numero, 10),
         data: formatarDataPlanilha(data),
         total: total,
-        cliente: cli || '—',
-        nomeCliente: cli || '—',
+        cliente: cli,
+        nomeCliente: cli,
         vendedor: vendedor,
         observacao: obs,
         notinha: not,
